@@ -1,5 +1,5 @@
 import os
-from backend.app.common.logger import logger
+from .common.logger import logger
 
 def configure_observability():
     api_key = os.getenv('LANGCHAIN_API_KEY')

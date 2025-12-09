@@ -1,5 +1,5 @@
 from langgraph.prebuilt import ToolNode
-from backend.app.common.logger import logger
+from ..common.logger import logger
 
 class ChatbotWithToolNode:
     def __init__(self, llm):

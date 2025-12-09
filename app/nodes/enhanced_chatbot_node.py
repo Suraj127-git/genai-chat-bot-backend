@@ -1,7 +1,7 @@
 from typing import Dict, Any
-from backend.app.state.state import State
-from backend.app.common.logger import logger
-from backend.app.repositories.chroma_repository import ChromaRepository
+from ..state.state import State
+from ..common.logger import logger
+from ..repositories.chroma_repository import ChromaRepository
 
 class EnhancedChatbotNode:
     def __init__(self, model, embedding_model: str = "nomic-embed-text"):

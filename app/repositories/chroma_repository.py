@@ -1,5 +1,5 @@
 from typing import List, Dict, Any, Optional
-from backend.app.database.chroma_manager import ChromaManager
+from ..database.chroma_manager import ChromaManager
 
 class ChromaRepository:
     def __init__(self, collection_name: str = "qa_collection", embedding_model: str = "nomic-embed-text"):

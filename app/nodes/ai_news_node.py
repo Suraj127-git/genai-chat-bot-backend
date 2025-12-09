@@ -1,6 +1,6 @@
 from tavily import TavilyClient
 from langchain_core.prompts import ChatPromptTemplate
-from backend.app.common.logger import logger
+from ..common.logger import logger
 
 class AINewsNode:
     def __init__(self,llm):

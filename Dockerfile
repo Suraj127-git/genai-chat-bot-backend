@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app/backend
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -14,9 +14,9 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy project files
-COPY backend/pyproject.toml /app/backend/pyproject.toml
-COPY backend/AINews /app/AINews
-COPY backend/app /app/backend/app
+COPY pyproject.toml /app/backend/pyproject.toml
+COPY AINews /app/AINews
+COPY app /app/backend/app
 
 # Install Python dependencies
 RUN pip install --upgrade pip && \
@@ -31,4 +31,4 @@ EXPOSE 8000
 # Health check removed for simplified deployment
 
 # Run the application
-CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

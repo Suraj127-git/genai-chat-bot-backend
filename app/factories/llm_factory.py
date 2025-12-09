@@ -1,7 +1,7 @@
 import os
 from fastapi import HTTPException
 from langchain_groq import ChatGroq
-from backend.app.common.logger import logger
+from ..common.logger import logger
 
 class LLMFactory:
     @staticmethod

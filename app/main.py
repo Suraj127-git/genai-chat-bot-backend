@@ -5,11 +5,11 @@ from typing import Optional, List, Dict, Any
 import os
 import time
 from dotenv import load_dotenv
-from backend.app.common.logger import logger
-from backend.app.factories.llm_factory import LLMFactory
-from backend.app.services.chat_service import ChatService
-from backend.app.services.news_service import NewsService
-from backend.app.repositories.chroma_repository import ChromaRepository
+from .common.logger import logger
+from .factories.llm_factory import LLMFactory
+from .services.chat_service import ChatService
+from .services.news_service import NewsService
+from .repositories.chroma_repository import ChromaRepository
 from .instrumentation import configure_observability
 
 load_dotenv()

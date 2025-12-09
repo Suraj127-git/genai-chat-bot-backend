@@ -1,8 +1,8 @@
 from typing import Dict, Any
 import os
-from backend.app.factories.llm_factory import LLMFactory
-from backend.app.graph.enhanced_graph_builder import EnhancedGraphBuilder
-from backend.app.common.logger import logger
+from ..factories.llm_factory import LLMFactory
+from ..graph.enhanced_graph_builder import EnhancedGraphBuilder
+from ..common.logger import logger
 
 class NewsService:
     def __init__(self, embedding_model: str = "nomic-embed-text"):

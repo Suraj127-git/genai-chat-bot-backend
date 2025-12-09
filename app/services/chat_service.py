@@ -1,7 +1,7 @@
 from typing import Dict, Any
-from backend.app.factories.llm_factory import LLMFactory
-from backend.app.graph.enhanced_graph_builder import EnhancedGraphBuilder
-from backend.app.common.logger import logger
+from ..factories.llm_factory import LLMFactory
+from ..graph.enhanced_graph_builder import EnhancedGraphBuilder
+from ..common.logger import logger
 
 class ChatService:
     def __init__(self, provider: str, model: str, embedding_model: str = "nomic-embed-text"):

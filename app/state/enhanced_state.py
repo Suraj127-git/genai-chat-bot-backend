@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Optional
 from langgraph.graph import MessagesState
-from backend.app.state.state import State
+from .state import State
 
 class EnhancedState(State):
     vector_search_results: Optional[List[Dict[str, Any]]] = None

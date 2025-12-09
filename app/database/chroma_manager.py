@@ -5,7 +5,7 @@ import chromadb
 from chromadb.config import Settings
 from chromadb.utils import embedding_functions
 
-from backend.app.common.logger import logger
+from ..common.logger import logger
 import numpy as np
 
 class ChromaManager:

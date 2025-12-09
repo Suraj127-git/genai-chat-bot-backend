@@ -1,9 +1,9 @@
 from typing import Dict, Any
 import json
-from backend.app.state.state import State
-from backend.app.common.logger import logger
-from backend.app.repositories.chroma_repository import ChromaRepository
-from backend.app.nodes.ai_news_node import AINewsNode
+from ..state.state import State
+from ..common.logger import logger
+from ..repositories.chroma_repository import ChromaRepository
+from .ai_news_node import AINewsNode
 
 class EnhancedAINewsNode(AINewsNode):
     def __init__(self, model, embedding_model: str = "nomic-embed-text"):

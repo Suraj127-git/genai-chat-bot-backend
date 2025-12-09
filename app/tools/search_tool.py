@@ -1,6 +1,6 @@
 from langchain_tavily import TavilySearch
 from langgraph.prebuilt import ToolNode
-from backend.app.common.logger import logger
+from ..common.logger import logger
 
 def get_tools():
     try:
