@@ -35,8 +35,7 @@ LOGTAIL_HOST=your_host_url
 CHROMA_PERSIST_DIRECTORY=./chroma_db
 CHROMA_COLLECTION_NAME=qa_collection
 
-# OpenAI API (for embeddings)
-OPENAI_API_KEY=your_openai_api_key
+
 ```
 
 ### Dependencies
@@ -82,7 +81,6 @@ OPENAI_API_KEY=your_openai_api_key
 3. **Required Environment Variables**
    ```bash
    GROQ_API_KEY=your_groq_api_key
-   OPENAI_API_KEY=your_openai_api_key
    TAVILY_API_KEY=your_tavily_api_key
    CHROMA_PERSIST_DIRECTORY=/app/chroma_db
    ```
@@ -129,7 +127,6 @@ pytest tests/
    - Check Python version compatibility (3.10+)
 
 2. **Embedding Model Issues**
-   - Verify OpenAI API key is set correctly
    - Check network connectivity for model downloads
 
 3. **Persistence Issues**

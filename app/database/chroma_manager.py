@@ -4,8 +4,7 @@ from typing import List, Dict, Optional, Any
 import chromadb
 from chromadb.config import Settings
 from chromadb.utils import embedding_functions
-from langchain_community.embeddings import OllamaEmbeddings
-from langchain_openai import OpenAIEmbeddings
+
 from backend.app.common.logger import logger
 import numpy as np
 
@@ -25,29 +24,10 @@ class ChromaManager:
         self.embedding_model = embedding_model
         
         # Initialize embedding function
-        if "gpt" in embedding_model.lower() or "openai" in embedding_model.lower():
-            openai_api_key = os.getenv("OPENAI_API_KEY")
-            if not openai_api_key:
-                raise ValueError("OPENAI_API_KEY is required for OpenAI embeddings")
-            self.embeddings = OpenAIEmbeddings(
-                model=embedding_model,
-                openai_api_key=openai_api_key
-            )
-            # Use OpenAI embedding function for ChromaDB
-            self.embedding_function = embedding_functions.OpenAIEmbeddingFunction(
-                api_key=openai_api_key,
-                model_name=embedding_model
-            )
-        else:
-            # Use Ollama embeddings
-            self.embeddings = OllamaEmbeddings(
-                model=embedding_model,
-                base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-            )
-            # Use sentence transformer for ChromaDB compatibility
-            self.embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
-                model_name="all-MiniLM-L6-v2"
-            )
+        # Use sentence transformer for ChromaDB compatibility
+        self.embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
+            model_name="all-MiniLM-L6-v2"
+        )
         
         self._ensure_collection_exists()
 

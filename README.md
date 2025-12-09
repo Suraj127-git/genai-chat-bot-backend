@@ -9,7 +9,7 @@ This backend service provides:
 - **News Aggregation**: AI-powered news search and summarization
 - **Vector Storage**: ChromaDB for persistent conversation memory
 - **RESTful API**: FastAPI with comprehensive endpoints
-- **Multi-LLM Support**: Groq, OpenAI, and other providers
+- **Multi-LLM Support**: Groq and other providers
 
 ## 📁 Project Structure
 
@@ -44,7 +44,6 @@ genai-chat-bot-backend/
 - pip (Python package manager)
 - API keys for:
   - Groq API
-  - OpenAI API (optional)
   - Tavily API (for news search)
 
 ### Installation
@@ -87,7 +86,6 @@ Create a `.env` file based on `.env.example`:
 ```env
 # API Keys
 GROQ_API_KEY=your_groq_api_key_here
-OPENAI_API_KEY=your_openai_api_key_here  # Optional
 TAVILY_API_KEY=your_tavily_api_key_here
 
 # Application Settings
@@ -103,7 +101,6 @@ CORS_ORIGINS=["http://localhost:3000", "http://localhost:5173"]
 
 The backend supports multiple LLM providers through a factory pattern:
 - **Groq**: Primary provider for fast inference
-- **OpenAI**: Alternative provider for GPT models
 - **Custom providers**: Extensible factory pattern for additional providers
 
 ## 📡 API Documentation
@@ -212,7 +209,6 @@ The backend is configured for Railway deployment with the included `railway.json
 
 2. **Set environment variables in Railway dashboard:**
    - `GROQ_API_KEY`
-   - `OPENAI_API_KEY`
    - `TAVILY_API_KEY`
 
 3. **Deploy:**
@@ -235,7 +231,7 @@ The backend is configured for Railway deployment with the included `railway.json
 ### LLM Factory Pattern
 - **Purpose**: Abstraction layer for multiple LLM providers
 - **Location**: `app/factories/llm_factory.py`
-- **Providers**: Groq, OpenAI, extensible for others
+- **Providers**: Groq, extensible for others
 
 ### Service Layer
 - **Chat Service**: Business logic for chat operations

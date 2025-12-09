@@ -1,7 +1,6 @@
 import os
 from fastapi import HTTPException
 from langchain_groq import ChatGroq
-from langchain_community.chat_models import ChatOllama
 from backend.app.common.logger import logger
 
 class LLMFactory:
@@ -14,8 +13,5 @@ class LLMFactory:
                 raise HTTPException(status_code=400, detail="Missing GROQ_API_KEY")
             logger.info(f"llm_factory groq {model}")
             return ChatGroq(api_key=api_key, model=model)
-        if p == "ollama":
-            logger.info(f"llm_factory ollama {model}")
-            return ChatOllama(model=model)
-        raise HTTPException(status_code=400, detail="Invalid provider")
+        raise HTTPException(status_code=400, detail="Invalid provider. Only 'groq' is supported.")
 

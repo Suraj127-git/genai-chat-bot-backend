@@ -16,7 +16,7 @@ def bench_call(path: str, payload: dict, n: int = 5):
 
 def test_bench_chat_basic():
     m = bench_call('/chat', {
-        'provider': 'Ollama', 'model': 'llama3.2:1b', 'usecase': 'Basic Chatbot', 'message': 'Hi'
+        'provider': 'Groq', 'model': 'llama-3.1-70b-versatile', 'usecase': 'Basic Chatbot', 'message': 'Hi'
     })
     assert m >= 0
 

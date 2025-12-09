@@ -69,7 +69,6 @@ LOGTAIL_HOST=your_host_url
 ```bash
 CHROMA_PERSIST_DIRECTORY=./chroma_db
 CHROMA_COLLECTION_NAME=qa_collection
-OPENAI_API_KEY=your_openai_api_key
 ```
 
 ## Deployment Ready Features

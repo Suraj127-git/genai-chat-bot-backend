@@ -55,55 +55,8 @@ class NewsResponse(BaseModel):
     from_cache: bool = False
 
 
-class HealthResponse(BaseModel):
-    status: str
-    timestamp: float
-    uptime: float
-    version: str
-    services: Dict[str, str]
-
-
 # Application startup time
 start_time = time.time()
-
-
-@app.get("/health", response_model=HealthResponse)
-def health():
-    """Comprehensive health check endpoint"""
-    try:
-        # Test ChromaDB connection
-        chroma_status = "healthy"
-        try:
-            chroma_repo = ChromaRepository()
-            chroma_repo.stats()
-        except Exception as e:
-            chroma_status = f"unhealthy: {str(e)}"
-            logger.warning(f"ChromaDB health check failed: {e}")
-        
-        # Test environment variables
-        env_status = "healthy"
-        required_vars = ["GROQ_API_KEY", "OPENAI_API_KEY", "TAVILY_API_KEY"]
-        missing_vars = [var for var in required_vars if not os.getenv(var)]
-        if missing_vars:
-            env_status = f"warning: missing {', '.join(missing_vars)}"
-        
-        uptime = time.time() - start_time
-        
-        return HealthResponse(
-            status="ok" if chroma_status == "healthy" else "degraded",
-            timestamp=time.time(),
-            uptime=uptime,
-            version="0.1.0",
-            services={
-                "chroma_db": chroma_status,
-                "environment": env_status,
-                "api": "healthy"
-            }
-        )
-    except Exception as e:
-        logger.error(f"Health check failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Health check failed: {e}")
-
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
