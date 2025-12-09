@@ -1,0 +1,24 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "Dockerfile"
+  },
+  "deploy": {
+    "startCommand": "uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT",
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 300,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  },
+  "environments": {
+    "production": {
+      "variables": {
+        "CHROMA_PERSIST_DIRECTORY": "/app/chroma_db",
+        "CHROMA_COLLECTION_NAME": "qa_collection",
+        "PYTHONPATH": "/app",
+        "HOST": "0.0.0.0"
+      }
+    }
+  }
+}
