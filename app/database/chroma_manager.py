@@ -10,21 +10,25 @@ import numpy as np
 
 class ChromaManager:
     def __init__(self, collection_name: str = "qa_collection", embedding_model: str = "nomic-embed-text"):
-        # Initialize ChromaDB client with persistent storage
-        persist_directory = os.getenv("CHROMA_PERSIST_DIRECTORY", "./chroma_db")
-        self.client = chromadb.PersistentClient(
-            path=persist_directory,
-            settings=Settings(
-                anonymized_telemetry=False,
-                allow_reset=True
+        host_addr = os.getenv("CHROMA_HOST_ADDR", "").strip()
+        host_port = int(os.getenv("CHROMA_HOST_PORT", "8000"))
+        if host_addr:
+            self.client = chromadb.HttpClient(host=host_addr, port=host_port, ssl=False)
+            logger.info(f"Connected to remote ChromaDB at {host_addr}:{host_port}")
+        else:
+            persist_directory = os.getenv("CHROMA_PERSIST_DIRECTORY", "./chroma_db")
+            self.client = chromadb.PersistentClient(
+                path=persist_directory,
+                settings=Settings(
+                    anonymized_telemetry=False,
+                    allow_reset=True
+                )
             )
-        )
+            logger.info(f"Using local ChromaDB at {persist_directory}")
         
         self.collection_name = collection_name
         self.embedding_model = embedding_model
         
-        # Initialize embedding function
-        # Use sentence transformer for ChromaDB compatibility
         self.embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
             model_name="all-MiniLM-L6-v2"
         )
