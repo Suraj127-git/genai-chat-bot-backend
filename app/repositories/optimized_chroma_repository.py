@@ -6,10 +6,8 @@ USE_LIGHTWEIGHT_DB = os.getenv("USE_LIGHTWEIGHT_DB", "false").lower() == "true"
 
 if USE_LIGHTWEIGHT_DB:
     from ..database.lightweight_chroma_manager import LightweightChromaManager as ChromaManager
-    print("Using lightweight ChromaDB manager")
 else:
     from ..database.chroma_manager import ChromaManager
-    print("Using standard ChromaDB manager")
 
 class ChromaRepository:
     def __init__(self, collection_name: str = "qa_collection", embedding_model: str = "nomic-embed-text"):

@@ -5,19 +5,8 @@
     "dockerfilePath": "Dockerfile"
   },
   "deploy": {
-    "startCommand": "sh start.sh",
+    "numReplicas": 1,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
-  },
-  "environments": {
-    "production": {
-      "variables": {
-        "CHROMA_PERSIST_DIRECTORY": "/app/chroma_db",
-        "CHROMA_COLLECTION_NAME": "qa_collection",
-        "PYTHONPATH": "/app/backend",
-        "HOST": "0.0.0.0",
-        "PORT": "8000"
-      }
-    }
   }
 }

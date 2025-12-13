@@ -1,40 +1,50 @@
-FROM python:3.11-slim
+# Multi-stage build for optimized production image
+FROM python:3.9-slim as builder
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/app/backend
-ENV PORT=8000
-ENV HOST=0.0.0.0
+WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Copy and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# Production stage
+FROM python:3.9-slim
+
 WORKDIR /app
 
-# Copy project files
-COPY pyproject.toml /app/backend/pyproject.toml
-COPY AINews /app/AINews
-COPY app /app/backend/app
-COPY start.sh /app/start.sh
+# Create non-root user first
+RUN useradd -m -u 1000 appuser
 
-# Make start script executable
-RUN chmod +x /app/start.sh
+# Copy Python dependencies from builder to appuser's home
+COPY --from=builder /root/.local /home/appuser/.local
 
-# Install Python dependencies
-RUN pip install --upgrade pip && \
-    pip install -e /app/backend
+# Copy application code
+COPY . .
 
-# Create directory for ChromaDB persistence
-RUN mkdir -p /app/chroma_db
+# Set ownership
+RUN chown -R appuser:appuser /app /home/appuser/.local
 
-# Expose port
-EXPOSE 8000
+# Switch to non-root user
+USER appuser
 
-# Health check removed for simplified deployment
+# Make sure scripts in .local are usable for appuser
+ENV PATH=/home/appuser/.local/bin:$PATH
 
-# Run the application
-CMD ["sh", "-c", "cd /app && ./start.sh"]
+# Railway uses PORT environment variable
+ENV PORT=8000
+
+# Expose port (Railway will override this with their PORT)
+EXPOSE $PORT
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD python -c "import requests; requests.get('http://localhost:${PORT}/health', timeout=5)" || exit 1
+
+# Use Railway's PORT environment variable
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT}
