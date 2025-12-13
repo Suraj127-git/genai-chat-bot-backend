@@ -34,14 +34,26 @@ class ChromaManager:
     def _ensure_collection_exists(self):
         """Ensure the collection exists, create if it doesn't"""
         try:
-            self.collection = self.client.get_collection(name=self.collection_name)
-            logger.info(f"Using existing collection: {self.collection_name}")
-        except Exception:
-            logger.info(f"Creating new collection: {self.collection_name}")
-            self.collection = self.client.create_collection(
-                name=self.collection_name,
-                metadata={"hnsw:space": "cosine"}
-            )
+            # Prefer idempotent helper if available
+            if hasattr(self.client, "get_or_create_collection"):
+                self.collection = self.client.get_or_create_collection(
+                    name=self.collection_name,
+                    metadata={"hnsw:space": "cosine"}
+                )
+            else:
+                try:
+                    self.collection = self.client.get_collection(name=self.collection_name)
+                    logger.info(f"Using existing collection: {self.collection_name}")
+                except Exception:
+                    logger.info(f"Creating new collection: {self.collection_name}")
+                    self.collection = self.client.create_collection(
+                        name=self.collection_name,
+                        metadata={"hnsw:space": "cosine"}
+                    )
+            logger.info(f"Ensured collection exists: {self.collection_name}")
+        except Exception as e:
+            logger.error(f"Error ensuring collection exists: {e}")
+            raise
 
     def _generate_id(self, text: str) -> str:
         """Generate a unique ID for a document"""
