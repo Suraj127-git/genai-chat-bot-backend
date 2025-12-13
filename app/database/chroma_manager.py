@@ -3,15 +3,18 @@ import hashlib
 from typing import List, Dict, Optional, Any
 import chromadb
 from chromadb.config import Settings
-from chromadb.utils import embedding_functions
 
 from ..common.logger import logger
 import numpy as np
+
 
 class ChromaManager:
     def __init__(self, collection_name: str = "qa_collection", embedding_model: str = "nomic-embed-text"):
         host_addr = os.getenv("CHROMA_HOST_ADDR", "").strip()
         host_port = int(os.getenv("CHROMA_HOST_PORT", "8000"))
+        self.collection_name = collection_name
+        self.embedding_model = embedding_model
+
         if host_addr:
             self.client = chromadb.HttpClient(host=host_addr, port=host_port, ssl=False)
             logger.info(f"Connected to remote ChromaDB at {host_addr}:{host_port}")
@@ -25,36 +28,20 @@ class ChromaManager:
                 )
             )
             logger.info(f"Using local ChromaDB at {persist_directory}")
-        
-        self.collection_name = collection_name
-        self.embedding_model = embedding_model
-        
-        self.embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
-            model_name="all-MiniLM-L6-v2"
-        )
-        
+
         self._ensure_collection_exists()
 
     def _ensure_collection_exists(self):
         """Ensure the collection exists, create if it doesn't"""
         try:
-            # Try to get existing collection
-            self.collection = self.client.get_collection(
-                name=self.collection_name,
-                embedding_function=self.embedding_function
-            )
+            self.collection = self.client.get_collection(name=self.collection_name)
             logger.info(f"Using existing collection: {self.collection_name}")
-        except Exception as e:
+        except Exception:
             logger.info(f"Creating new collection: {self.collection_name}")
-            try:
-                self.collection = self.client.create_collection(
-                    name=self.collection_name,
-                    embedding_function=self.embedding_function,
-                    metadata={"hnsw:space": "cosine"}  # Use cosine similarity
-                )
-            except Exception as create_error:
-                logger.error(f"Error creating collection: {create_error}")
-                raise
+            self.collection = self.client.create_collection(
+                name=self.collection_name,
+                metadata={"hnsw:space": "cosine"}
+            )
 
     def _generate_id(self, text: str) -> str:
         """Generate a unique ID for a document"""

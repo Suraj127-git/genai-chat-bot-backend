@@ -3,14 +3,16 @@ import hashlib
 from typing import List, Dict, Optional, Any
 import chromadb
 from chromadb.config import Settings
-from chromadb.utils import embedding_functions
 
 from ..common.logger import logger
+
 
 class LightweightChromaManager:
     def __init__(self, collection_name: str = "qa_collection", embedding_model: str = "nomic-embed-text"):
         host_addr = os.getenv("CHROMA_HOST_ADDR", "").strip()
         host_port = int(os.getenv("CHROMA_HOST_PORT", "8000"))
+        self.collection_name = collection_name
+
         if host_addr:
             self.client = chromadb.HttpClient(host=host_addr, port=host_port, ssl=False)
             logger.info(f"Connected to remote ChromaDB at {host_addr}:{host_port}")
@@ -24,11 +26,7 @@ class LightweightChromaManager:
                 )
             )
             logger.info(f"Using local ChromaDB at {persist_directory}")
-        
-        self.collection_name = collection_name
-        
-        self.embedding_function = embedding_functions.DefaultEmbeddingFunction()
-        
+
         self._ensure_collection_exists()
 
     def _ensure_collection_exists(self):
@@ -38,10 +36,7 @@ class LightweightChromaManager:
             logger.info(f"Using existing collection: {self.collection_name}")
         except Exception:
             logger.info(f"Creating new collection: {self.collection_name}")
-            self.collection = self.client.create_collection(
-                name=self.collection_name,
-                embedding_function=self.embedding_function
-            )
+            self.collection = self.client.create_collection(name=self.collection_name)
 
     def store_qa_pair(self, question: str, answer: str, usecase: str, metadata: Optional[Dict[str, Any]] = None) -> bool:
         """Store a question-answer pair with metadata"""
@@ -133,10 +128,7 @@ class LightweightChromaManager:
         """Clear all documents from the collection"""
         try:
             self.client.delete_collection(name=self.collection_name)
-            self.collection = self.client.create_collection(
-                name=self.collection_name,
-                embedding_function=self.embedding_function
-            )
+            self.collection = self.client.create_collection(name=self.collection_name)
             logger.info(f"Cleared collection: {self.collection_name}")
             return True
         except Exception as e:
