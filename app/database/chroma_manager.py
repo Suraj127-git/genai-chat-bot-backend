@@ -34,54 +34,43 @@ class ChromaManager:
     def _ensure_collection_exists(self):
         """Ensure the collection exists, create if it doesn't"""
         try:
-            # First, try to list existing collections to see if ours exists
             try:
                 collections = self.client.list_collections()
-                existing_collection = None
                 for coll in collections:
-                    if coll.name == self.collection_name:
-                        existing_collection = coll
-                        break
-                
-                if existing_collection:
-                    self.collection = existing_collection
-                    logger.info(f"Using existing collection: {self.collection_name}")
-                    return
+                    if getattr(coll, "name", None) == self.collection_name:
+                        self.collection = coll
+                        logger.info(f"Using existing collection from list_collections: {self.collection_name}")
+                        return
             except Exception as list_error:
                 logger.warning(f"Could not list collections: {list_error}")
-            
-            # Try to get existing collection directly
+
             try:
                 self.collection = self.client.get_collection(name=self.collection_name)
-                logger.info(f"Using existing collection: {self.collection_name}")
+                logger.info(f"Using existing collection via get_collection: {self.collection_name}")
                 return
             except Exception as get_error:
-                logger.info(f"Collection {self.collection_name} not found, will create: {get_error}")
-            
-            # Try to create collection with fallback for configuration issues
+                logger.info(f"Collection {self.collection_name} not found via get_collection, will create: {get_error}")
+
             try:
                 self.collection = self.client.create_collection(
                     name=self.collection_name,
                     metadata={"hnsw:space": "cosine"}
                 )
-                logger.info(f"Created new collection: {self.collection_name}")
+                logger.info(f"Created new collection with metadata: {self.collection_name}")
             except Exception as create_error:
-                # Handle ChromaDB configuration issues by trying simpler approach
-                logger.warning(f"Standard collection creation failed, trying fallback: {create_error}")
-                try:
-                    # Try with minimal metadata
-                    self.collection = self.client.create_collection(name=self.collection_name)
-                    logger.info(f"Created collection with minimal metadata: {self.collection_name}")
-                except Exception as fallback_error:
-                    # Last resort: try get_or_create_collection as fallback
-                    logger.warning(f"Minimal metadata failed, trying get_or_create_collection: {fallback_error}")
+                msg = str(create_error)
+                logger.warning(f"Standard create_collection failed: {msg}")
+                if "already exists" in msg:
+                    self.collection = self.client.get_collection(name=self.collection_name)
+                    logger.info(f"Collection already exists, fetched via get_collection: {self.collection_name}")
+                else:
                     try:
-                        self.collection = self.client.get_or_create_collection(name=self.collection_name)
-                        logger.info(f"Used get_or_create_collection fallback: {self.collection_name}")
-                    except Exception as final_error:
-                        logger.error(f"All collection creation methods failed: {final_error}")
-                        raise final_error
-                        
+                        self.collection = self.client.create_collection(name=self.collection_name)
+                        logger.info(f"Created collection with minimal metadata: {self.collection_name}")
+                    except Exception as minimal_error:
+                        logger.error(f"All collection creation attempts failed: {minimal_error}")
+                        raise minimal_error
+
             logger.info(f"Ensured collection exists: {self.collection_name}")
         except Exception as e:
             logger.error(f"Error ensuring collection exists: {e}")
