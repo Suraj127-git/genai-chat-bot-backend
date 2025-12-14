@@ -61,11 +61,18 @@ start_time = time.time()
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
     try:
+        logger.info(f"Chat request received: provider={req.provider}, model={req.model}, usecase={req.usecase}, message={req.message}")
         service = ChatService(provider=req.provider, model=req.model, embedding_model=req.embedding_model)
+        logger.info("ChatService initialized successfully")
         result = service.run(req.usecase, req.message)
+        logger.info(f"ChatService.run() returned: {result}")
+        
         if req.usecase == "AI News":
             raise HTTPException(status_code=400, detail="Use /news/summary for AI News")
+            
         messages = result.get("messages")
+        logger.info(f"Messages from result: {messages} (type: {type(messages)})")
+        
         if hasattr(messages, "content"):
             content = messages.content
         elif isinstance(messages, list) and len(messages) > 0:
@@ -73,15 +80,21 @@ def chat(req: ChatRequest):
             content = last.content if hasattr(last, "content") else str(last)
         else:
             content = str(messages)
+            
         from_cache = False
         if isinstance(content, str) and "[This response was retrieved from previous similar questions]" in content:
             from_cache = True
+            
+        logger.info(f"Returning ChatResponse: content={content}, from_cache={from_cache}")
         return ChatResponse(content=content, from_cache=from_cache)
+        
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Chat error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Chat error: {e}", exc_info=True)
+        logger.error(f"Error type: {type(e)}")
+        logger.error(f"Error args: {e.args if hasattr(e, 'args') else 'no args'}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
 def map_timeframe_to_frequency(text: str) -> str:
