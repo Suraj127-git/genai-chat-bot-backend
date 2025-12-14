@@ -4,5 +4,6 @@ from typing import Annotated
 
 
 class State(TypedDict):
-    messages: Annotated[List,add_messages]
+    messages: Annotated[List, add_messages]
+    usecase: str
 
