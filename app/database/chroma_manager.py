@@ -14,6 +14,7 @@ class ChromaManager:
         host_port = int(os.getenv("CHROMA_HOST_PORT", "8000"))
         self.collection_name = collection_name
         self.embedding_model = embedding_model
+        self._is_remote = bool(host_addr)
 
         if host_addr:
             self.client = chromadb.HttpClient(host=host_addr, port=host_port, ssl=False)
@@ -31,7 +32,19 @@ class ChromaManager:
 
         self._ensure_collection_exists()
 
-    def _ensure_collection_exists(self):
+    def _switch_to_local_client(self):
+        persist_directory = os.getenv("CHROMA_PERSIST_DIRECTORY", "./chroma_db")
+        self.client = chromadb.PersistentClient(
+            path=persist_directory,
+            settings=Settings(
+                anonymized_telemetry=False,
+                allow_reset=True
+            )
+        )
+        self._is_remote = False
+        logger.info(f"Falling back to local ChromaDB at {persist_directory}")
+
+    def _ensure_collection_exists(self, allow_fallback: bool = True):
         """Ensure the collection exists, create if it doesn't"""
         try:
             try:
@@ -74,7 +87,12 @@ class ChromaManager:
             logger.info(f"Ensured collection exists: {self.collection_name}")
         except Exception as e:
             logger.error(f"Error ensuring collection exists: {e}")
-            raise
+            if allow_fallback and self._is_remote and "_type" in str(e):
+                logger.warning("Remote ChromaDB error related to configuration type; falling back to local persistent ChromaDB")
+                self._switch_to_local_client()
+                self._ensure_collection_exists(allow_fallback=False)
+            else:
+                raise
 
     def _generate_id(self, text: str) -> str:
         """Generate a unique ID for a document"""
